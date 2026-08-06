@@ -1,0 +1,17 @@
+# Dependencias y paquetes (muy pesados, no deben ir a GitHub)
+node_modules/
+vendor/
+
+# Archivos de entorno y variables sensibles (claves, bases de datos)
+.env
+.env.local
+
+# Archivos de configuración de editores o del sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs de error
+npm-debug.log*
+yarn-debug.log*
