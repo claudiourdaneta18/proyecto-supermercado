@@ -31,4 +31,3 @@ if (menuBox && dropdownMenu) {
         dropdownMenu.classList.toggle('active');
     });
 }
-

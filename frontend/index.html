@@ -1,23 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supermercado online</title>
+    <title>Supermercado El Jireth</title>
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
+
     <header class="header">
         <div class="logo">
-            <img src="/imagenes/jireth.jpeg" alt="logo" class="imagen">
+            <img src="/imagenes/jireth.jpeg" alt="Logo Supermercado El Jireth" class="imagen">
         </div>
+
         <div class="search-and-cart">
-                <form class="form" action="buscar.js">
-                    <span class="search-icon">
-                        <img src="/imagenes/icon-park-outline--search.svg" alt="lupa" class="lupa">
-                    </span>
-                    <input class="search" type="search" name="buscar" placeholder="Buscar en supermercado el jireth"> 
-                </form>
+            <form class="form" action="buscar.js">
+                <span class="search-icon">
+                    <img src="/imagenes/icon-park-outline--search.svg" alt="Lupa" class="lupa">
+                </span>
+                <input class="search" type="search" name="buscar" placeholder="Buscar en supermercado El Jireth"> 
+            </form>
+
             <div class="imagen-icon">
                 <svg class="shopping-car" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="8" cy="21" r="2"/>
@@ -25,20 +28,22 @@
                     <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
                 </svg>
             </div>
+
             <div class="menu-box">
                 <button type="button" class="menu-btn" id="menu-btn">
-                    Categorias
+                    Categorías
                 </button>
                 <nav class="dropdown-container" id="dropdown-menu">
                     <ul class="categories">
-                        <li>viveres</li>
-                        <li>bebidas</li>
-                        <li>charcuteria</li>
-                        <li>limpieza</li>
-                        <li>vejetales</li>
+                        <li>Víveres</li>
+                        <li>Bebidas</li>
+                        <li>Charcutería</li>
+                        <li>Limpieza</li>
+                        <li>Vegetales</li>
                     </ul>
                 </nav>
             </div>
+
             <div class="button-sesion">
                 <button type="button" class="sesion-btn" id="sesion-btn">
                     Mi cuenta
@@ -47,18 +52,15 @@
         </div>
     </header>
 
-    <nav class="menu">
-        
-  
+    <!-- Contenido Principal -->
     <div id="content">
         <main>
-            <h2>mi contenido</h2>
+            <h2>Nuestros Productos</h2>
             
-            <!-- Aquí es donde JavaScript meterá los productos de MySQL -->
+            <!-- Aquí JavaScript inyectará los productos desde MySQL -->
             <section id="grid-productos">
-                <!-- Ejemplo de cómo se verá una tarjeta -->
                 <article class="tarjeta-producto">
-                    <img src="" alt="">
+                    <img src="" alt="Producto">
                     <h3></h3>
                     <p class="precio"></p>
                     <button class="btn-agregar">Agregar</button>
@@ -66,49 +68,41 @@
             </section>
         </main>
     </div> 
-      </nav>
 
-<footer id="footer">
-    <div class="footer-container">
-        
-        <!-- Extremo Izquierdo: Logo -->
-        <div class="footer-logo">
-            <img src="/imagenes/car-jireth.png" alt="Logo de Supermercado Jireth" class="imagen-secondary">
+    <!-- Footer Fijo -->
+    <footer id="footer">
+        <div class="footer-container">
+            <div class="footer-logo">
+                <img src="/imagenes/car-jireth.png" alt="Logo de Supermercado Jireth" class="imagen-secondary">
+            </div>
+
+            <div class="footer-content">
+                <nav class="footer-nav" aria-label="Enlaces Rápidos">
+                    <a href="#">Nosotros</a>
+                    <a href="#">Contáctanos</a>
+                    <a href="#">Formas de Pago</a>
+                    <a href="#">Preguntas Frecuentes</a>
+                </nav>
+
+                <nav class="footer-nav footer-legal" aria-label="Políticas Legales">
+                    <a href="#">Políticas de Privacidad</a>
+                    <a href="#">Términos y Condiciones</a>
+                    <a href="#">Políticas de Soporte</a>
+                    <a href="#">Políticas de Cumplimiento</a>
+                </nav>
+
+                <p class="copyright">&copy; 2026 Supermercado El Jireth - Todos los derechos reservados.</p>
+            </div>
+
+            <div class="footer-spacer"></div>
         </div>
+    </footer>
 
-        <!-- Centro: Enlaces Rápidos, Legales y Copyright -->
-        <div class="footer-content">
-            <!-- Bloque de Enlaces Rápidos -->
-            <nav class="footer-nav" aria-label="Enlaces Rápidos">
-                <a href="#">Nosotros</a>
-                <a href="#">Contáctanos</a>
-                <a href="#">Formas de Pago</a>
-                <a href="#">Preguntas Frecuentes</a>
-            </nav>
-
-            <!-- Bloque de Enlaces Legales -->
-            <nav class="footer-nav footer-legal" aria-label="Políticas Legales">
-                <a href="#">Políticas de Privacidad</a>
-                <a href="#">Términos y Condiciones</a>
-                <a href="#">Políticas de Soporte</a>
-                <a href="#">Políticas de Cumplimiento</a>
-            </nav>
-
-            <!-- Copyright -->
-            <p class="copyright">&copy; 2026 Supermercado el Jireth - Todos los derechos reservados.</p>
-        </div>
-
-        <!-- Espaciador invisible para balancear visualmente el espacio del logo -->
-        <div class="footer-spacer"></div>
-
+    <!-- Botón Flotante de WhatsApp -->
+    <div class="social-media">
+        <img src="/imagenes/logos--whatsapp.svg" alt="WhatsApp" class="social" id="btn-chatbot">
     </div>
-</footer>
-
-<!-- Botón Flotante de WhatsApp (Totalmente independiente a la derecha) -->
-<div class="social-media">
-    <img src="/imagenes/logos--whatsapp.svg" alt="whatsapp" class="social" id="btn-chatbot">
-</div>
-    
+        
     <script src="index.js" defer></script>
 </body>
 </html>
