@@ -102,7 +102,77 @@
     <div class="social-media">
         <img src="/imagenes/logos--whatsapp.svg" alt="WhatsApp" class="social" id="btn-chatbot">
     </div>
-        
+       
+    <!-- ==========================================================================
+         MODAL FLOTANTE DE MI CUENTA (LOGIN / REGISTRO CLIENTES)
+         ========================================================================== -->
+    <div class="modal-overlay" id="modal-cuenta">
+        <div class="admin-container modal-content">
+            <!-- Botón de cerrar (X) -->
+            <button type="button" class="close-modal" id="close-modal">&times;</button>
+            
+            <!-- Encabezado -->
+            <header class="admin-header">
+                <h2>Supermercado El Jireth</h2>
+                <p>Accede a tu cuenta para comprar</p>
+            </header>
+
+            <!-- Pestañas para alternar -->
+            <nav class="form-tabs">
+                <button type="button" id="tab-login" class="active">Iniciar Sesión</button>
+                <button type="button" id="tab-register">Crear Cuenta</button>
+            </nav>
+
+            <!-- 1. Formulario de Login Clientes -->
+            <section id="login-section" class="form-section active">
+                <form id="login-form-client" action="/api/cliente/login" method="POST">
+                    <div class="form-group">
+                        <label for="login-email">Correo Electrónico</label>
+                        <input type="email" id="login-email" name="email" required placeholder="tu-correo@ejemplo.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="login-password">Contraseña</label>
+                        <input type="password" id="login-password" name="password" required placeholder="••••••••">
+                    </div>
+
+                    <button type="submit">Ingresar</button>
+                </form>
+            </section>
+
+            <!-- 2. Formulario de Registro Clientes -->
+            <section id="register-section" class="form-section">
+                <form id="register-form-client" action="/api/cliente/register" method="POST">
+                    <div class="form-group">
+                        <label for="reg-name">Nombre y Apellido</label>
+                        <input type="text" id="reg-name" name="fullname" required placeholder="Ej. Juan antonio colmeares Pérez">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reg-cedula">Cedula / ID</label>
+                        <input type="text" id="reg-cedula" name="cedula" required placeholder="Ej. ***-***-***">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reg-phone">Teléfono / WhatsApp</label>
+                        <input type="tel" id="reg-phone" name="phone" required placeholder="0412-0000000">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reg-email">Correo Electrónico</label>
+                        <input type="email" id="reg-email" name="email" required placeholder="tu-correo@ejemplo.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reg-password">Contraseña</label>
+                        <input type="password" id="reg-password" name="password" required placeholder="••••••••">
+                    </div>
+
+                    <button type="submit">Crear mi Cuenta</button>
+                </form>
+            </section>
+        </div>
+    </div>
     <script src="index.js" defer></script>
 </body>
 </html>

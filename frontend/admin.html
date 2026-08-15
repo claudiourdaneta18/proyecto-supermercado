@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acceso Administrador</title>
+  <!-- Aquí vinculas tu archivo CSS -->
+  <link rel="stylesheet" href="./admin.css">
+</head>
+<body>
+
+  <!-- Contenedor Tarjeta Principal -->
+  <main class="admin-container">
+    
+    <!-- 1. Encabezado en verde con la identidad de marca -->
+    <header class="admin-header">
+      <h2>Panel Admin</h2>
+      <p>Gestión de acceso al sistema</p>
+    </header>
+
+    <!-- 2. Pestañas de navegación superiores (Pintadas y funcionales) -->
+    <nav class="form-tabs">
+      <button type="button" id="tab-login" class="active">Iniciar Sesión</button>
+      <button type="button" id="tab-register">Crear Administrador</button>
+    </nav>
+
+    <!-- 3. Formulario de Login (Activo por defecto) -->
+    <section id="login-section" class="form-section active">
+      <form id="login-form" action="/api/login" method="POST">
+        
+        <div class="form-group">
+          <label for="login-email">Correo o Usuario</label>
+          <input type="email" id="login-email" name="email" required placeholder="admin@ejemplo.com">
+        </div>
+
+        <div class="form-group">
+          <label for="login-password">Contraseña</label>
+          <input type="password" id="login-password" name="password" required placeholder="••••••••">
+        </div>
+
+        <button type="submit">Ingresar al Panel</button>
+      </form>
+    </section>
+
+    <!-- 4. Formulario para Crear Administrador (Oculto por defecto) -->
+    <section id="register-section" class="form-section">
+      <form id="register-form" action="/api/register" method="POST">
+
+        <div class="form-group">
+          <label for="reg-name">Nombre Completo</label>
+          <input type="text" id="reg-name" name="fullname" required placeholder="Nombre y Apellido">
+        </div>
+
+        <div class="form-group">
+          <label for="reg-email">Correo Electrónico</label>
+          <input type="email" id="reg-email" name="email" required placeholder="nuevo.admin@ejemplo.com">
+        </div>
+
+        <div class="form-group">
+          <label for="reg-password">Contraseña</label>
+          <input type="password" id="reg-password" name="password" required placeholder="••••••••">
+        </div>
+
+        <div class="form-group">
+          <label for="reg-role">Nivel de Permisos</label>
+          <select id="reg-role" name="role" required>
+            <option value="admin">Administrador Estándar</option>
+            <option value="superadmin">Súper Administrador</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-secret">Clave Maestra de Registro</label>
+          <input type="password" id="reg-secret" name="secret_key" required placeholder="Clave de autorización">
+        </div>
+
+        <button type="submit">Registrar Administrador</button>
+      </form>
+    </section>
+
+  </main>
+<script src="./admin.js"></script>
+</body>
+</html>

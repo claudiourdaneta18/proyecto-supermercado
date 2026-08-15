@@ -2,7 +2,7 @@
    1. ESTILOS GLOBALES Y VARIABLES (:root)
    ========================================================================== */
 :root {
-    /* Paleta Principal */
+    /* Paleta Principal (Fresca y Amigable para Supermercado) */
     --primary-color: #16A34A;
     --primary-hover: #15803D;
     --color-button: #28AC58;
@@ -10,15 +10,19 @@
     --button-dark: #1B7A37;
     --whatsapp-color: #25D366;
     
-    /* Neutros y Fondos */
-    --bg-body: #f2f8f6;
+    /* Neutros y Fondos (Luminosos y Limpios) */
+    --bg-body: #f8faf9;
     --bg-white: #ffffff;
-    --text-dark: #333333;
+    --text-dark: #1f2937;
     --text-light: #ffffff;
     
-    /* Sombras Reutilizables */
-    --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.15);
-    --shadow-medium: 0 8px 20px rgba(0, 0, 0, 0.2);
+    /* Bordes Finos para Definición */
+    --border-subtle: 1px solid rgba(0, 0, 0, 0.06);
+    --border-glass: 1px solid rgba(255, 255, 255, 0.2);
+    
+    /* Sombras Ultra-Modernas (Más difuminadas e integradas) */
+    --shadow-soft: 0 4px 20px -2px rgba(22, 163, 74, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+    --shadow-medium: 0 12px 30px -4px rgba(0, 0, 0, 0.12), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
 }
 
 * {
@@ -32,7 +36,8 @@ body {
     margin: 0;
     padding: 0;
     background-color: var(--bg-body);
-    font-family: system-ui, -apple-system, sans-serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--text-dark);
 }
 
 /* ==========================================================================
@@ -43,11 +48,11 @@ body {
     align-items: center;
     justify-content: space-between;
     background-color: var(--primary-color);
-    border-radius: 0 0 30px 30px;
+    border-radius: 0 0 24px 24px;
     width: 100%;
     margin: 0 auto 25px auto;
     color: var(--text-light);
-    padding: 10px 20px;
+    padding: 12px 24px;
     box-shadow: var(--shadow-soft);
 }
 
@@ -63,7 +68,7 @@ body {
     width: 100%; 
     height: auto;
     display: block;
-    border-radius: 30px;
+    border-radius: 20px;
 }
 
 /* Envoltorio de Búsqueda y Herramientas */
@@ -87,7 +92,7 @@ body {
 
 .search-icon {
     position: absolute;
-    left: 12px;
+    left: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -99,6 +104,7 @@ body {
     width: 18px;
     height: 18px;
     display: block;
+    opacity: 0.8;
 }
 
 .search {
@@ -106,9 +112,18 @@ body {
     flex: 1;
     outline: none;
     border-radius: 30px;
-    border: 1px solid var(--text-light);
-    padding: 8px 16px 8px 40px;
+    border: var(--border-glass);
+    padding: 10px 16px 10px 42px;
     font-size: 14px;
+    background-color: rgba(255, 255, 255, 0.95);
+    color: var(--text-dark);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search:focus {
+    background-color: var(--bg-white);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
 }
 
 /* Menú Categorías y Desplegable */
@@ -120,7 +135,7 @@ body {
 .menu-btn {
     min-width: 130px;
     height: 45px;
-    border-radius: 20px;
+    border-radius: 22px;
     background-color: var(--color-button);
     color: var(--text-light);
     display: inline-flex;
@@ -128,38 +143,40 @@ body {
     justify-content: center;
     border: none;
     padding: 12px 24px;
-    font-size: 16px;
+    font-size: 15px;
+    font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 5px 0 var(--button-dark), var(--shadow-soft);
+    box-shadow: 0 4px 0 var(--button-dark), var(--shadow-soft);
     animation: flotar 3s ease-in-out infinite;
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, background-color 0.2s ease;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, background-color 0.2s ease;
 }
 
 .menu-btn:hover {
     animation-play-state: paused;
-    transform: scale(1.08) translateY(-4px);
+    transform: scale(1.05) translateY(-3px);
     background-color: var(--button-hover);
-    box-shadow: 0 9px 0 var(--button-dark), var(--shadow-medium);
+    box-shadow: 0 7px 0 var(--button-dark), var(--shadow-medium);
 }
 
 .menu-btn:active {
-    transform: scale(0.95) translateY(2px);
-    box-shadow: 0 3px 0 var(--button-dark), var(--shadow-soft);
+    transform: scale(0.96) translateY(2px);
+    box-shadow: 0 2px 0 var(--button-dark), var(--shadow-soft);
 }
 
 /* Dropdown desplegado hacia abajo */
 .dropdown-container {
     position: absolute;
-    top: 110%;
+    top: 115%;
     left: 0;
     background-color: var(--bg-white);
+    border: var(--border-subtle);
     box-shadow: var(--shadow-medium);
-    border-radius: 12px;
-    min-width: 180px;
+    border-radius: 16px;
+    min-width: 200px;
     z-index: 100;
     overflow: hidden;
     transform-origin: top left;
-    transform: scale(0);
+    transform: scale(0.95);
     opacity: 0;
     visibility: hidden;
     transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, visibility 0.2s;
@@ -174,24 +191,28 @@ body {
 .categories {
     list-style: none;
     margin: 0;
-    padding: 8px 0;
+    padding: 8px;
     display: flex;
     flex-direction: column;
+    gap: 2px;
 }
 
 .categories li {
-    font-size: 15px;
+    font-size: 14px;
+    font-weight: 500;
     color: var(--text-dark);
-    padding: 10px 18px;
+    padding: 10px 16px;
+    border-radius: 10px;
     cursor: pointer;
     text-transform: capitalize;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
     white-space: nowrap;
 }
 
 .categories li:hover {
     background-color: #f0fdf4;
     color: var(--primary-color);
+    transform: translateX(3px);
 }
 
 /* Botón Sesión / Mi Cuenta */
@@ -202,29 +223,29 @@ body {
 }
 
 .sesion-btn {
-  min-width: 130px;
-  height: 45px;
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 20px;
-  border: none;
-  cursor: pointer;
-  background-color: var(--color-button);
-  color: var(--text-light);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: var(--shadow-soft);
-  animation: flotar 3s ease-in-out infinite;
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, background-color 0.2s ease;
+    min-width: 130px;
+    height: 45px;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 22px;
+    border: none;
+    cursor: pointer;
+    background-color: var(--color-button);
+    color: var(--text-light);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-soft);
+    animation: flotar 3s ease-in-out infinite;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, background-color 0.2s ease;
 }
 
 .sesion-btn:hover {
     animation-play-state: paused;
-  transform: scale(1.05);
-  background-color: var(--button-hover);
-  box-shadow: var(--shadow-medium);
+    transform: scale(1.05) translateY(-2px);
+    background-color: var(--button-hover);
+    box-shadow: var(--shadow-medium);
 }
 
 /* Icono Carrito */
@@ -235,18 +256,18 @@ body {
 }
 
 .shopping-car {
-    width: 25px;
+    width: 26px;
     height: 30px;
     cursor: pointer;
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .shopping-car:hover {
-    transform: scale(1.1);
+    transform: scale(1.15) rotate(-3deg);
 }
 
 .shopping-car.clicked {
-    transform: scale(1.2);
+    transform: scale(1.25);
 }
 
 /* ==========================================================================
@@ -254,23 +275,35 @@ body {
    ========================================================================== */
 #content {
     flex: 1;
-    padding: 20px;
-    margin-bottom: 120px; /* Espacio para no ser solapado por el footer fijo */
+    padding: 24px;
+    margin-bottom: 110px; /* Espacio para no ser solapado por el footer fijo */
+    max-width: 1300px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
 }
 
 #grid-productos {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
+    gap: 22px;
     margin-top: 20px;
 }
 
 .tarjeta-producto {
     background-color: var(--bg-white);
-    border-radius: 15px;
-    padding: 15px;
+    border-radius: 18px;
+    padding: 18px;
+    border: var(--border-subtle);
     box-shadow: var(--shadow-soft);
     text-align: center;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.tarjeta-producto:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-medium);
+    border-color: rgba(22, 163, 74, 0.2);
 }
 
 /* ==========================================================================
@@ -278,15 +311,17 @@ body {
    ========================================================================== */
 #footer {
     position: fixed;
-    bottom: 10px;
+    bottom: 12px;
     left: 20px;
     right: 20px;
     background-color: var(--primary-color);
     color: var(--text-light);
-    padding: 12px 20px;
-    border-radius: 15px;
-    box-shadow: var(--shadow-soft);  
+    padding: 12px 24px;
+    border-radius: 20px;
+    border: var(--border-glass);
+    box-shadow: var(--shadow-medium);  
     z-index: 999;
+    backdrop-filter: blur(8px); /* Efecto cristal muy ligero */
 }
 
 .footer-container {
@@ -304,11 +339,12 @@ body {
 }
 
 .imagen-secondary {
-    width: 60px;
-    height: 60px;
+    width: 55px;
+    height: 55px;
     border-radius: 50%;
     object-fit: cover;
     background-color: var(--bg-white);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 .footer-content {
@@ -325,35 +361,34 @@ body {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 12px 18px;
+    gap: 12px 20px;
 }
 
 .footer-nav a {
     color: var(--text-light);
     text-decoration: none;
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     font-weight: 500;
-    transition: opacity 0.2s ease, text-decoration 0.2s ease;
+    transition: opacity 0.2s ease;
 }
 
 .footer-nav a:hover {
-    opacity: 0.85;
-    text-decoration: underline;
+    opacity: 0.8;
 }
 
 .footer-legal a {
     font-size: 0.78rem;
-    opacity: 0.9;
+    opacity: 0.88;
 }
 
 .copyright {
     font-size: 0.75rem;
-    margin: 4px 0 0 0;
-    opacity: 0.95;
+    margin: 2px 0 0 0;
+    opacity: 0.9;
 }
 
 .footer-spacer {
-    width: 60px;
+    width: 55px;
     flex-shrink: 0;
 }
 
@@ -369,30 +404,244 @@ body {
 }
 
 .social {
-    width: 55px;
-    height: 55px;
-    padding: 10px;
+    width: 56px;
+    height: 56px;
+    padding: 12px;
     background-color: var(--whatsapp-color);
     border-radius: 50%;
     object-fit: contain;
-    box-shadow: var(--shadow-medium);
+    box-shadow: 0 8px 24px rgba(37, 211, 102, 0.35), var(--shadow-soft);
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease;
 }
 
 .social:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.12) rotate(5deg);
+    box-shadow: 0 10px 28px rgba(37, 211, 102, 0.45);
 }
 
 /* ==========================================================================
-   5. RESPONSIVO Y ANIMACIONES (@media y @keyframes)
+   5. ESTRUCTURA Y TRANSICIÓN SUAVE DEL MODAL (MI CUENTA)
+   ========================================================================== */
+
+/* Fondo Oscuro con Desenfoque Gradual */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    
+    /* Estado Oculto Inicial */
+    opacity: 0;
+    visibility: hidden;
+    
+    /* Transición Suave de Aparición / Cierre */
+    transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1), 
+                visibility 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Contenedor Flotante (Transición de Escalado/Tamaño) */
+.modal-content {
+    position: relative;
+    margin: 0 16px;
+    max-height: 90vh;
+    overflow-y: auto;
+    width: 100%;
+    max-width: 460px;
+    
+    /* Estado Inicial: Reducido y un poco más abajo */
+    transform: scale(0.92) translateY(25px);
+    opacity: 0;
+    
+    /* Curva de Animación Fluida */
+    transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), 
+                opacity 0.6s ease-out;
+}
+
+/* Estado Activo (Al presionar "Mi cuenta") */
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-overlay.active .modal-content {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+
+/* Botón de Cierre (X) */
+.close-modal {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    background: transparent;
+    border: none;
+    color: var(--text-light);
+    font-size: 1.8rem;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 10;
+    line-height: 1;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.close-modal:hover {
+    transform: scale(1.2);
+    opacity: 0.8;
+}
+
+/* ==========================================================================
+   6. ESTILOS INTERIORES DE LA TARJETA DEL MODAL
+   ========================================================================== */
+
+/* Tarjeta Principal */
+.admin-container {
+    max-width: 460px;
+    width: 100%;
+    background-color: var(--bg-white);
+    border-radius: 24px;
+    border: var(--border-subtle);
+    box-shadow: var(--shadow-medium);
+    overflow: hidden;
+}
+
+/* Encabezado Verde */
+.admin-header {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    padding: 28px 24px 22px 24px;
+    text-align: center;
+    border-bottom: 4px solid var(--button-dark);
+}
+
+.admin-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-light);
+    margin: 0 0 6px 0;
+}
+
+.admin-header p {
+    font-size: 0.88rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+}
+
+/* Pestañas de Navegación (Tabs) */
+.form-tabs {
+    display: flex;
+    background-color: var(--bg-body);
+    border-radius: 30px;
+    padding: 5px;
+    margin: 20px 24px 0 24px;
+    border: var(--border-subtle);
+}
+
+.form-tabs button {
+    flex: 1;
+    padding: 10px 14px;
+    border: none;
+    background: transparent;
+    color: var(--text-dark);
+    font-size: 0.88rem;
+    font-weight: 600;
+    border-radius: 22px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.form-tabs button.active {
+    background-color: var(--color-button);
+    color: var(--text-light);
+    box-shadow: 0 3px 0 var(--button-dark), var(--shadow-soft);
+}
+
+/* Secciones Ocultas / Visibles */
+.form-section {
+    display: none;
+    padding: 24px;
+}
+
+.form-section.active {
+    display: block;
+}
+
+/* Grupos de Formulario e Inputs */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+}
+
+.form-group input {
+    width: 100%;
+    outline: none;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    padding: 12px 16px;
+    font-size: 14px;
+    background-color: #f9fafb;
+    color: var(--text-dark);
+    transition: all 0.2s ease;
+}
+
+.form-group input:focus {
+    background-color: var(--bg-white);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+}
+
+/* Botón Principal en Verde 3D */
+.form-section button[type="submit"] {
+    width: 100%;
+    height: 48px;
+    border-radius: 24px;
+    background-color: var(--color-button);
+    color: var(--text-light);
+    border: none;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    box-shadow: 0 4px 0 var(--button-dark), var(--shadow-soft);
+    transition: all 0.2s ease;
+}
+
+.form-section button[type="submit"]:hover {
+    background-color: var(--button-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--button-dark), var(--shadow-medium);
+}
+
+.form-section button[type="submit"]:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 var(--button-dark), var(--shadow-soft);
+}
+
+/* ==========================================================================
+   7. RESPONSIVO Y ANIMACIONES (@media y @keyframes)
    ========================================================================== */
 @media screen and (max-width: 768px) {
     .header {
         flex-direction: column;
         gap: 15px;
         border-radius: 0 0 20px 20px;
+        padding: 16px;
     }
     
     .search-and-cart {
@@ -408,15 +657,19 @@ body {
     .footer-spacer {
         display: none;
     }
+
+    #content {
+        padding: 16px;
+    }
 }
 
 @keyframes flotar {
     0%, 100% {
         transform: translateY(0px);
-        box-shadow: 0 5px 0 var(--button-dark), var(--shadow-soft);
+        box-shadow: 0 4px 0 var(--button-dark), var(--shadow-soft);
     }
     50% {
-        transform: translateY(-6px);
-        box-shadow: 0 11px 0 var(--button-dark), var(--shadow-medium);
+        transform: translateY(-5px);
+        box-shadow: 0 8px 0 var(--button-dark), var(--shadow-medium);
     }
 }
