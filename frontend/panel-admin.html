@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración | Supermercado</title>
+    <link rel="stylesheet" href="panel-admin.css">
+</head>
+<body>
+
+    <!-- CONTENEDOR PRINCIPAL DEL DASHBOARD -->
+    <div class="dashboard-wrapper">
+
+        <!-- BARRA LATERAL (SIDEBAR) -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="/imagenes/jireth.jpeg" alt="Logo Supermercado">
+            </div>
+
+            <!-- Información del Usuario Activo -->
+            <div class="user-badge">
+                <div class="user-avatar">SA</div>
+                <div class="user-info">
+                    <span class="user-name" id="display-user-name">Cargando...</span>
+                    <span class="user-role" id="display-user-role">Super Admin</span>
+                </div>
+            </div>
+
+            <!-- MENÚ DESPLEGABLE TIPO HAMBURGUESA -->
+            <div class="menu-dropdown-wrapper">
+                <!-- Botón de activación -->
+                <button type="button" class="btn-menu-toggle" id="btn-menu-toggle">
+                    <span class="hamburger-icon">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </span>
+                    <span class="btn-menu-text">Menú</span>
+                    <span class="arrow-icon">▼</span>
+                </button>
+
+                <!-- Navegación desplegable -->
+                <nav class="sidebar-nav" id="sidebar-nav">
+                    <a href="#resumen" class="nav-item active">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-text">Resumen</span>
+                    </a>
+                    
+                    <a href="#productos" class="nav-item">
+                        <span class="nav-icon">📦</span>
+                        <span class="nav-text">Productos</span>
+                    </a>
+
+                    <a href="#categorias" class="nav-item">
+                        <span class="nav-icon">🏷️</span>
+                        <span class="nav-text">Categorías</span>
+                    </a>
+
+                    <a href="#ventas" class="nav-item">
+                        <span class="nav-icon">🛒</span>
+                        <span class="nav-text">Ventas</span>
+                    </a>
+
+                    <a href="#libro-ventas" class="nav-item">
+                        <span class="nav-icon">📜</span>
+                        <span class="nav-text">Libro Ventas SENIAT</span>
+                    </a>
+
+                    <!-- OPCIÓN EXCLUSIVA DE SUPERADMINISTRADOR -->
+                    <a href="#emisor-seniat" class="nav-item only-superadmin">
+                        <span class="nav-icon">🏛️</span>
+                        <span class="nav-text">Empresa SENIAT</span>
+                    </a>
+
+                    <!-- OPCIÓN EXCLUSIVA DE SUPERADMINISTRADOR -->
+                    <a href="#usuarios" class="nav-item only-superadmin">
+                        <span class="nav-icon">👥</span>
+                        <span class="nav-text">Gestión Usuarios</span>
+                    </a>
+
+                    <!-- OPCIÓN EXCLUSIVA DE SUPERADMINISTRADOR -->
+                    <a href="#configuracion" class="nav-item only-superadmin">
+                        <span class="nav-icon">⚙️</span>
+                        <span class="nav-text">Configuración</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Botón de Cerrar Sesión -->
+            <div class="sidebar-footer">
+                <button id="btn-logout" class="btn-logout">
+                    <span class="nav-icon">🚪</span>
+                    <span>Cerrar Sesión</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ÁREA DE CONTENIDO PRINCIPAL -->
+        <div class="main-layout">
+
+            <!-- HEADER SUPERIOR DEL PANEL -->
+            <header class="admin-topbar">
+                <div class="topbar-title">
+                    <h1 id="page-title">Panel de Control</h1>
+                    <p>Bienvenido al sistema de administración general</p>
+                </div>
+                
+                <div class="topbar-actions">
+                    <a href="index.html" class="btn-store-view" target="_blank">
+                        🌐 Ver Tienda
+                    </a>
+                </div>
+            </header>
+
+            <!-- CONTENIDO DINÁMICO (VISTAS) -->
+            <main class="admin-content" id="admin-content">
+
+                <!-- TARJETAS DE ESTADÍSTICAS RÁPIDAS (RESUMEN) -->
+                <section class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon">💰</div>
+                        <div class="metric-data">
+                            <h3>Ventas Hoy</h3>
+                            <p class="metric-value">$0.00</p>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon">📦</div>
+                        <div class="metric-data">
+                            <h3>Total Productos</h3>
+                            <p class="metric-value" id="metric-total-productos">0</p>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon">⚠️</div>
+                        <div class="metric-data">
+                            <h3>Stock Bajo</h3>
+                            <p class="metric-value" id="metric-stock-bajo">0</p>
+                        </div>
+                    </div>
+
+                    <!-- METRICA EXCLUSIVA DE SUPERADMIN -->
+                    <div class="metric-card only-superadmin">
+                        <div class="metric-icon">👥</div>
+                        <div class="metric-data">
+                            <h3>Administradores</h3>
+                            <p class="metric-value" id="metric-total-admins">1 / 3</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ÁREA PARA MUESTRA DE TABLAS / SECCIONES -->
+                <section class="panel-card" id="panel-card-main">
+                    <div class="card-header" id="panel-card-header">
+                        <h2>Actividad Reciente</h2>
+                    </div>
+                    <div class="card-body" id="panel-card-body">
+                        <p class="placeholder-text">Selecciona una opción del menú lateral para comenzar a gestionar el sistema.</p>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+
+    </div>
+    <script src="./panel-admin.js"></script>
+
+    <!-- MODAL PARA REGISTRAR / EDITAR PRODUCTO -->
+    <div id="modal-producto" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-producto-titulo">Registrar Nuevo Producto</h2>
+            </div>
+            
+            <form id="form-crear-producto">
+                <input type="hidden" id="prod-id" value="">
+                <div class="form-body">
+                    <div class="form-group">
+                        <label for="prod-codigo">Código de Barras*</label>
+                        <input type="text" id="prod-codigo" required placeholder="Ej: 7591000000000">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="prod-nombre">Nombre del Producto*</label>
+                        <input type="text" id="prod-nombre" required placeholder="Ej: Arroz Tradicional 1kg">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="prod-categoria">Categoría*</label>
+                            <select id="prod-categoria" required>
+                                <option value="">Selecciona una categoría</option>
+                                <option value="1">Víveres</option>
+                                <option value="2">Bebidas</option>
+                                <option value="3">Charcutería</option>
+                                <option value="4">Limpieza</option>
+                                <option value="5">Hortalizas</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="prod-alicuota">Alícuota IVA (SENIAT)*</label>
+                            <select id="prod-alicuota">
+                                <option value="G">General (16%)</option>
+                                <option value="E">Exento (0% - Canasta Básica)</option>
+                                <option value="R">Reducido (8%)</option>
+                                <option value="A">Suntuario (31%)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="prod-precio">Precio Base USD ($)*</label>
+                            <input type="number" step="0.01" id="prod-precio" placeholder="0.00" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="prod-stock">Stock Inicial</label>
+                            <input type="number" id="prod-stock" value="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="prod-descripcion">Descripción</label>
+                        <textarea id="prod-descripcion" rows="3" placeholder="Detalles opcionales del producto..."></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" id="btn-cerrar-modal" class="btn-secondary">Cancelar</button>
+                    <button type="submit" id="btn-guardar-producto" class="btn-primary">Guardar Producto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE AUTORIZACIÓN DE SUPER ADMIN (PROTOCOLO DE SEGURIDAD) -->
+    <div id="modal-auth-superadmin" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🔐 Autorización de Super Admin Requerida</h2>
+            </div>
+            
+            <form id="form-auth-superadmin">
+                <div class="form-body">
+                    <div class="security-box">
+                        <strong>Protocolo de Seguridad Activo:</strong>
+                        <p>Para modificar o eliminar este producto guardado en la base de datos, ingresa el Código / Clave de Autorización proporcionado por el Super Admin.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="auth-code-input">Clave / Código de Autorización Master*</label>
+                        <input type="password" id="auth-code-input" required placeholder="Ingresa la clave maestra del Super Admin...">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" id="btn-cerrar-auth-modal" class="btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn-primary">Confirmar y Aplicar Cambio</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

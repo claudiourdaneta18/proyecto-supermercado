@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura Fiscal SENIAT</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Courier New', Courier, monospace; margin: 0; padding: 0; }
+        body { background-color: #f5f5f5; padding: 20px; color: #111; }
+        .invoice-box { max-width: 800px; margin: auto; padding: 24px; border: 1px solid #ddd; background: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
+        .header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 15px; margin-bottom: 15px; }
+        .header h1 { font-size: 20px; text-transform: uppercase; margin-bottom: 4px; }
+        .header p { font-size: 13px; line-height: 1.4; }
+        .fiscal-badge { display: inline-block; background: #111; color: #fff; font-weight: bold; padding: 4px 10px; border-radius: 4px; margin-top: 8px; font-size: 12px; }
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px; border-bottom: 1px dashed #000; padding-bottom: 15px; margin-bottom: 15px; }
+        .table-items { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 12px; }
+        .table-items th, .table-items td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
+        .table-items th { background: #eee; text-align: center; }
+        .text-right { text-align: right !important; }
+        .text-center { text-align: center !important; }
+        .summary-box { border-top: 2px solid #000; padding-top: 10px; font-size: 13px; }
+        .summary-row { display: flex; justify-content: space-between; padding: 3px 0; }
+        .summary-total { font-size: 16px; font-weight: bold; border-top: 1px double #000; border-bottom: 1px double #000; padding: 6px 0; margin-top: 6px; }
+        .footer-note { text-align: center; font-size: 11px; margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 10px; }
+        .no-print { text-align: center; margin-bottom: 15px; }
+        .btn-print { background: #0056b3; color: white; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; border-radius: 4px; font-family: sans-serif; }
+        @media print { .no-print { display: none; } body { background: none; padding: 0; } .invoice-box { border: none; box-shadow: none; max-width: 100%; } }
+    </style>
+</head>
+<body>
+
+    <div class="no-print">
+        <button onclick="window.print()" class="btn-print">🖨️ Imprimir Factura Fiscal SENIAT</button>
+    </div>
+
+    <div class="invoice-box" id="invoice">
+        <div class="header">
+            <h1 id="emisor-nombre">CARGANDO...</h1>
+            <p><strong>RIF:</strong> <span id="emisor-rif">...</span></p>
+            <p id="emisor-direccion">...</p>
+            <p><strong>Teléfono:</strong> <span id="emisor-telefono">...</span></p>
+            <div class="fiscal-badge">COMPROBANTE FISCAL SENIAT</div>
+        </div>
+
+        <div class="details-grid">
+            <div>
+                <p><strong>N° FACTURA:</strong> <span id="fac-numero" style="color: #c00;">...</span></p>
+                <p><strong>N° CONTROL:</strong> <span id="fac-control" style="color: #008800;">...</span></p>
+                <p><strong>Fecha Emisión:</strong> <span id="fac-fecha">...</span></p>
+                <p><strong>Forma de Pago:</strong> <span id="fac-metodo">...</span></p>
+            </div>
+            <div>
+                <p><strong>CLIENTE:</strong> <span id="cli-nombre">...</span></p>
+                <p><strong>CÉDULA / RIF:</strong> <span id="cli-rif">...</span></p>
+                <p><strong>Dirección:</strong> <span id="cli-direccion">...</span></p>
+                <p><strong>Tasa BCV Aplicada:</strong> <span id="fac-tasa">...</span> VES/USD</p>
+            </div>
+        </div>
+
+        <table class="table-items">
+            <thead>
+                <tr>
+                    <th>CÓDIGO</th>
+                    <th>CANT</th>
+                    <th>DESCRIPCIÓN</th>
+                    <th>ALÍCUOTA</th>
+                    <th>PRECIO ($)</th>
+                    <th>SUBTOTAL ($)</th>
+                </tr>
+            </thead>
+            <tbody id="items-body">
+                <tr><td colspan="6" class="text-center">Cargando ítems...</td></tr>
+            </tbody>
+        </table>
+
+        <div class="summary-box">
+            <div class="summary-row"><span>Subtotal Neto:</span><span id="sum-subtotal">$0.00</span></div>
+            <div class="summary-row"><span>Monto Exento (0%):</span><span id="sum-exento">$0.00</span></div>
+            <div class="summary-row"><span>Base Imponible General (16%):</span><span id="sum-base-g">$0.00</span></div>
+            <div class="summary-row"><span>Monto IVA General (16%):</span><span id="sum-iva-g">$0.00</span></div>
+            <div class="summary-row" id="row-igtf"><span>IGTF Retenido (3% Divisa):</span><span id="sum-igtf">$0.00</span></div>
+            
+            <div class="summary-total summary-row">
+                <span>TOTAL A PAGAR (USD):</span>
+                <span id="sum-total-usd">$0.00</span>
+            </div>
+            <div class="summary-total summary-row" style="color: #0056b3;">
+                <span>EQUIVALENTE A PAGAR (VES):</span>
+                <span id="sum-total-ves">Bs. 0,00</span>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            <p id="emisor-resolucion">Providencia Administrativa SNAT/2011/00071</p>
+            <p id="emisor-pie">Gracias por su preferencia.</p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.port === '3000' ? '' : 'http://localhost:3000';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const facturaId = urlParams.get('id');
+
+            if (!facturaId) {
+                alert('No se especificó un ID de factura válido.');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/api/seniat/factura/${facturaId}`, { credentials: 'include' });
+                const data = await res.json();
+
+                if (!data.success) {
+                    alert('Error: ' + data.message);
+                    return;
+                }
+
+                const emisor = data.emisor;
+                const factura = data.factura;
+                const items = data.items;
+
+                // Cargar datos emisor
+                document.getElementById('emisor-nombre').textContent = emisor.razon_social;
+                document.getElementById('emisor-rif').textContent = emisor.rif;
+                document.getElementById('emisor-direccion').textContent = emisor.direccion_fiscal;
+                document.getElementById('emisor-telefono').textContent = emisor.telefono;
+                if (emisor.resolucion_seniat) document.getElementById('emisor-resolucion').textContent = emisor.resolucion_seniat;
+                if (emisor.pie_pagina_factura) document.getElementById('emisor-pie').textContent = emisor.pie_pagina_factura;
+
+                // Cargar datos factura
+                document.getElementById('fac-numero').textContent = factura.numero_factura || 'N/A';
+                document.getElementById('fac-control').textContent = factura.numero_control || 'N/A';
+                document.getElementById('fac-fecha').textContent = new Date(factura.creado_en).toLocaleString('es-VE');
+                document.getElementById('fac-metodo').textContent = factura.metodo_pago_principal || 'Contado';
+                document.getElementById('fac-tasa').textContent = parseFloat(factura.tasa_bcv_aplicada).toFixed(4);
+
+                // Cargar datos cliente
+                document.getElementById('cli-nombre').textContent = factura.nombre_razon_social;
+                document.getElementById('cli-rif').textContent = `${factura.tipo_documento}-${factura.cedula_rif}`;
+                document.getElementById('cli-direccion').textContent = factura.direccion || 'N/A';
+
+                // Cargar ítems
+                const itemsBody = document.getElementById('items-body');
+                itemsBody.innerHTML = '';
+
+                items.forEach(item => {
+                    let badgeAlicuota = 'G (16%)';
+                    if (item.alicuota_iva === 'E') badgeAlicuota = 'E (0%)';
+                    if (item.alicuota_iva === 'R') badgeAlicuota = 'R (8%)';
+                    if (item.alicuota_iva === 'A') badgeAlicuota = 'A (31%)';
+
+                    itemsBody.innerHTML += `
+                        <tr>
+                            <td><code>${item.codigo_barras}</code></td>
+                            <td class="text-center">${item.cantidad}</td>
+                            <td>${item.producto_nombre}</td>
+                            <td class="text-center">${badgeAlicuota}</td>
+                            <td class="text-right">$${parseFloat(item.precio_unitario_usd).toFixed(2)}</td>
+                            <td class="text-right"><strong>$${parseFloat(item.subtotal_usd).toFixed(2)}</strong></td>
+                        </tr>
+                    `;
+                });
+
+                // Resumen tributario SENIAT
+                document.getElementById('sum-subtotal').textContent = `$${parseFloat(factura.monto_subtotal_usd).toFixed(2)}`;
+                document.getElementById('sum-exento').textContent = `$${parseFloat(factura.monto_exento_usd).toFixed(2)}`;
+                document.getElementById('sum-base-g').textContent = `$${parseFloat(factura.base_imponible_g_usd).toFixed(2)}`;
+                document.getElementById('sum-iva-g').textContent = `$${parseFloat(factura.monto_iva_g_usd || factura.monto_iva_usd).toFixed(2)}`;
+                document.getElementById('sum-igtf').textContent = `$${parseFloat(factura.monto_igtf_usd).toFixed(2)}`;
+
+                document.getElementById('sum-total-usd').textContent = `$${parseFloat(factura.monto_total_usd).toFixed(2)}`;
+                document.getElementById('sum-total-ves').textContent = `Bs. ${parseFloat(factura.monto_total_ves).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+            } catch (err) {
+                console.error(err);
+                alert('No se pudo cargar la factura fiscal.');
+            }
+        });
+    </script>
+</body>
+</html>
