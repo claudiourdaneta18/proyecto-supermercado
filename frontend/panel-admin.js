@@ -4,12 +4,106 @@ const API_URL = window.location.port === '3000' ? '' : 'http://localhost:3000';
 let currentUser = null;
 let productosCache = [];
 let accionPendienteSecurity = null;
+let stockMinimoGlobal = 5; // Umbral global de stock bajo (se actualiza desde BD)
+
+// ==========================================================
+// SISTEMA DE NOTIFICACIONES TOAST (reemplaza alert() nativo)
+// ==========================================================
+function mostrarToast(mensaje, tipo = 'success', duracion = 3500) {
+    let contenedor = document.getElementById('toast-container');
+    if (!contenedor) {
+        contenedor = document.createElement('div');
+        contenedor.id = 'toast-container';
+        contenedor.style.cssText = `
+            position: fixed; top: 20px; right: 20px; z-index: 99999;
+            display: flex; flex-direction: column; gap: 10px; max-width: 380px;
+        `;
+        document.body.appendChild(contenedor);
+    }
+
+    const iconos = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+    const colores = {
+        success: { bg: '#d1fae5', border: '#10b981', text: '#065f46' },
+        error:   { bg: '#fee2e2', border: '#ef4444', text: '#991b1b' },
+        warning: { bg: '#fef3c7', border: '#f59e0b', text: '#92400e' },
+        info:    { bg: '#dbeafe', border: '#3b82f6', text: '#1e40af' }
+    };
+    const c = colores[tipo] || colores.info;
+
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        background: ${c.bg}; border-left: 4px solid ${c.border}; color: ${c.text};
+        padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.12); display: flex; align-items: flex-start;
+        gap: 10px; animation: slideInToast 0.3s ease; min-width: 280px;
+    `;
+    toast.innerHTML = `
+        <span style="font-size:16px;flex-shrink:0;">${iconos[tipo] || 'ℹ️'}</span>
+        <span style="flex:1;line-height:1.4;">${mensaje}</span>
+        <button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;font-size:16px;color:${c.text};opacity:0.6;flex-shrink:0;padding:0 0 0 4px;">✕</button>
+    `;
+
+    if (!document.getElementById('toast-anim-style')) {
+        const style = document.createElement('style');
+        style.id = 'toast-anim-style';
+        style.textContent = `
+            @keyframes slideInToast { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:translateX(0); } }
+            @keyframes fadeOutToast { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(40px); } }
+        `;
+        document.head.appendChild(style);
+    }
+
+    contenedor.appendChild(toast);
+    setTimeout(() => {
+        toast.style.animation = 'fadeOutToast 0.3s ease forwards';
+        setTimeout(() => toast.remove(), 300);
+    }, duracion);
+}
+
+// Modal de confirmación moderno (reemplaza confirm() nativo)
+function mostrarConfirmacion(mensaje, onConfirm, onCancel = null) {
+    let overlay = document.getElementById('confirm-modal-overlay');
+    if (overlay) overlay.remove();
+
+    overlay = document.createElement('div');
+    overlay.id = 'confirm-modal-overlay';
+    overlay.style.cssText = `
+        position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+        display: flex; align-items: center; justify-content: center; z-index: 9999;
+    `;
+    overlay.innerHTML = `
+        <div style="background:#fff; border-radius:12px; padding:28px 32px; max-width:400px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.25); text-align:center;">
+            <p style="font-size:38px; margin-bottom:12px;">⚠️</p>
+            <p style="font-size:15px; color:#374151; line-height:1.5; margin-bottom:24px;">${mensaje}</p>
+            <div style="display:flex; gap:12px; justify-content:center;">
+                <button id="confirm-cancel-btn" style="padding:10px 24px; border-radius:8px; border:1px solid #d1d5db; background:#f9fafb; color:#374151; cursor:pointer; font-size:14px; font-weight:500;">Cancelar</button>
+                <button id="confirm-ok-btn" style="padding:10px 24px; border-radius:8px; border:none; background:#dc2626; color:#fff; cursor:pointer; font-size:14px; font-weight:600;">Confirmar</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    document.getElementById('confirm-ok-btn').addEventListener('click', () => {
+        overlay.remove();
+        if (typeof onConfirm === 'function') onConfirm();
+    });
+    document.getElementById('confirm-cancel-btn').addEventListener('click', () => {
+        overlay.remove();
+        if (typeof onCancel === 'function') onCancel();
+    });
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            overlay.remove();
+            if (typeof onCancel === 'function') onCancel();
+        }
+    });
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
     // 1. Seleccionar elementos clave del DOM
     const nombreSU = document.getElementById('display-user-name');
     const rolSU = document.getElementById('display-user-role');
-    const avatarSU = document.querySelector('.user-avatar');
+    const avatarSU = document.getElementById('display-user-avatar');
     const btnLogout = document.getElementById('btn-logout');
     const elementosSuperAdmin = document.querySelectorAll('.only-superadmin');
 
@@ -24,34 +118,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log('Respuesta de autoverificación:', authData);
 
         if (!authRes.ok || !authData.authenticated) {
-            alert('⚠️ Debes iniciar sesión para acceder al panel. (Razón: ' + (authData.message || 'Sin cookie') + ')');
-            window.location.href = 'admin.html';
+            mostrarToast('⚠️ Debes iniciar sesión para acceder al panel.', 'warning');
+            setTimeout(() => { window.location.href = 'admin.html'; }, 1500);
             return;
         }
 
         currentUser = authData.user;
 
-        // Mostrar el Nombre del Usuario y Generar Iniciales desde los datos recibidos del servidor
-        if (nombreSU && currentUser.nombre) {
-            nombreSU.textContent = currentUser.nombre;
+        // Mostrar el Nombre Completo del Usuario y Generar Iniciales correctas
+        // Iniciales: primera letra del NOMBRE + primera letra del APELLIDO (ej: Daniel Marquez → DM)
+        const primerNombre = currentUser.nombre ? currentUser.nombre.trim().split(' ')[0] : '';
+        const primerApellido = currentUser.apellido ? currentUser.apellido.trim().split(' ')[0] : '';
 
-            if (avatarSU) {
-                const iniciales = currentUser.nombre
-                    .trim()
-                    .split(' ')
-                    .map(palabra => palabra[0])
-                    .join('')
-                    .substring(0, 2)
-                    .toUpperCase();
-                avatarSU.textContent = iniciales;
-            }
+        if (nombreSU) {
+            const nombreCompleto = primerApellido
+                ? `${currentUser.nombre} ${currentUser.apellido}`
+                : currentUser.nombre;
+            nombreSU.textContent = nombreCompleto;
         }
 
-        // Mostrar el Rol y Filtrar Permisos por Rol
-        if (currentUser.rol) {
-            if (rolSU) rolSU.textContent = currentUser.rol;
+        if (avatarSU) {
+            const inicialNombre = primerNombre ? primerNombre[0].toUpperCase() : '';
+            const inicialApellido = primerApellido ? primerApellido[0].toUpperCase() : '';
+            avatarSU.textContent = (inicialNombre + inicialApellido) || primerNombre.substring(0, 2).toUpperCase() || 'AD';
+        }
 
+        // Mostrar el Rol formateado y Filtrar Permisos por Rol
+        if (currentUser.rol) {
             const esSuperAdmin = currentUser.rol.toLowerCase().includes('super');
+            if (rolSU) rolSU.textContent = esSuperAdmin ? 'Super Admin' : 'Administrador';
+
             elementosSuperAdmin.forEach(elemento => {
                 if (!esSuperAdmin) {
                     elemento.style.display = 'none';
@@ -60,8 +156,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
     } catch (error) {
-        alert('❌ Error al verificar la sesión con el servidor.');
-        window.location.href = 'admin.html';
+        mostrarToast('❌ Error al verificar la sesión con el servidor.', 'error');
+        setTimeout(() => { window.location.href = 'admin.html'; }, 2000);
         return;
     }
 
@@ -71,14 +167,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 4. Cargar métrica de administradores
     await cargarMetricaAdministradores();
 
+    // 4b. Cargar configuración global (tasa BCV, stock mínimo) desde BD
+    await cargarConfiguracionGlobal();
+
     // 5. Cargar lista de productos por defecto en el panel
     await cargarProductos();
 
-    // 5. Funcionalidad del Botón Cerrar Sesión
+    // 5b. Actualizar métrica de Ventas Hoy al inicio
+    await actualizarMetricaVentasHoy();
+
+    // 6. Funcionalidad del Botón Cerrar Sesión
     if (btnLogout) {
-        btnLogout.addEventListener('click', async () => {
-            const confirmar = confirm('¿Estás seguro de que deseas cerrar sesión?');
-            if (confirmar) {
+        btnLogout.addEventListener('click', () => {
+            mostrarConfirmacion('¿Estás seguro de que deseas cerrar sesión?', async () => {
                 try {
                     await fetch(`${API_URL}/api/logout`, {
                         method: 'POST',
@@ -86,11 +187,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     });
                     window.location.href = 'admin.html';
                 } catch (error) {
-                    alert('Error al cerrar sesión.');
+                    mostrarToast('Error al cerrar sesión.', 'error');
                 }
-            }
+            });
         });
     }
+
 
     // 6. Alternar menú desplegable por Clic/Toque (Móvil y Desktop)
     const btnMenuToggle = document.getElementById('btn-menu-toggle');
@@ -269,18 +371,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                             credentials: 'include',
                             body: JSON.stringify({ ...productoPayload, auth_code: authCode })
                         });
-
                         const data = await res.json();
-
                         if (res.ok && data.success) {
-                            alert('✅ ' + data.message);
+                            mostrarToast(data.message, 'success');
                             ocultarModalProducto();
                             await cargarProductos();
                         } else {
-                            alert('❌ Error: ' + (data.message || 'No se pudo actualizar el producto.'));
+                            mostrarToast(data.message || 'No se pudo actualizar el producto.', 'error');
                         }
                     } catch (error) {
-                        alert('Ocurrió un error al conectar con el servidor.');
+                        mostrarToast('Ocurrió un error al conectar con el servidor.', 'error');
                         console.error(error);
                     }
                 });
@@ -293,18 +393,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                         credentials: 'include',
                         body: JSON.stringify(productoPayload)
                     });
-
                     const data = await res.json();
-
                     if (res.ok && data.success) {
-                        alert('✅ ' + data.message);
+                        mostrarToast(data.message, 'success');
                         ocultarModalProducto();
                         await cargarProductos();
                     } else {
-                        alert('❌ Error: ' + (data.message || 'No se pudo guardar el producto.'));
+                        mostrarToast(data.message || 'No se pudo guardar el producto.', 'error');
                     }
                 } catch (error) {
-                    alert('Ocurrió un error al conectar con el servidor.');
+                    mostrarToast('Ocurrió un error al conectar con el servidor.', 'error');
                     console.error(error);
                 }
             }
@@ -534,30 +632,27 @@ function confirmarEliminacion(idProducto) {
     const producto = productosCache.find(p => p.id_producto === idProducto);
     const nombreProd = producto ? producto.nombre : 'este producto';
 
-    const confirmar = confirm(`¿Estás seguro de que deseas eliminar permanentemente "${nombreProd}" del inventario?`);
-    if (!confirmar) return;
-
-    solicitarAutorizacionSuperAdmin(async (authCode = null) => {
-        try {
-            const res = await fetch(`${API_URL}/api/productos/${idProducto}`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ auth_code: authCode })
-            });
-
-            const data = await res.json();
-
-            if (res.ok && data.success) {
-                alert('✅ ' + data.message);
-                await cargarProductos();
-            } else {
-                alert('❌ Error: ' + (data.message || 'No se pudo eliminar el producto.'));
+    mostrarConfirmacion(`¿Estás seguro de que deseas eliminar permanentemente <strong>"${nombreProd}"</strong> del inventario?`, () => {
+        solicitarAutorizacionSuperAdmin(async (authCode = null) => {
+            try {
+                const res = await fetch(`${API_URL}/api/productos/${idProducto}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ auth_code: authCode })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    mostrarToast(data.message, 'success');
+                    await cargarProductos();
+                } else {
+                    mostrarToast(data.message || 'No se pudo eliminar el producto.', 'error');
+                }
+            } catch (error) {
+                mostrarToast('Error al conectar con el servidor.', 'error');
+                console.error(error);
             }
-        } catch (error) {
-            alert('Error al conectar con el servidor.');
-            console.error(error);
-        }
+        });
     });
 }
 
@@ -574,6 +669,143 @@ async function cargarMetricaAdministradores() {
         }
     } catch (err) {
         console.error('Error al cargar métrica de administradores:', err);
+    }
+}
+
+// ==========================================================
+// Cargar configuración global (Tasa BCV y Stock Mínimo) desde BD al inicio
+// ==========================================================
+async function cargarConfiguracionGlobal() {
+    try {
+        const res = await fetch(`${API_URL}/api/config`, { credentials: 'include' });
+        const data = await res.json();
+        if (data.success) {
+            // Actualizar variable global de stock mínimo para que las tablas la usen
+            if (data.stock_minimo != null) {
+                stockMinimoGlobal = parseInt(data.stock_minimo);
+            }
+            // Guardar tasa BCV en sessionStorage para uso rápido
+            if (data.tasa_bcv) {
+                sessionStorage.setItem('tasa_bcv_actual', data.tasa_bcv);
+                sessionStorage.setItem('tasa_bcv_fecha', data.tasa_fecha || '');
+            }
+        }
+    } catch (err) {
+        console.error('Error al cargar configuración global:', err);
+    }
+}
+
+// ==========================================================
+// Actualizar métrica de Ventas Hoy en el dashboard
+// ==========================================================
+async function actualizarMetricaVentasHoy() {
+    const metricCard = document.querySelector('#card-ventas-hoy .metric-value');
+    if (!metricCard) return;
+
+    try {
+        const res = await fetch(`${API_URL}/api/ventas/hoy`, { credentials: 'include' });
+        const data = await res.json();
+        if (data.success && data.resumen) {
+            const totalUSD = parseFloat(data.resumen.total_usd || 0);
+            metricCard.textContent = `$${totalUSD.toFixed(2)}`;
+        }
+    } catch (err) {
+        console.error('Error al cargar ventas de hoy:', err);
+    }
+}
+
+// ==========================================================
+// Vista completa: Resumen de Ventas del Día (al clic en tarjeta Ventas Hoy)
+// ==========================================================
+async function cargarVentasHoy() {
+    const cardHeader = document.getElementById('panel-card-header');
+    const cardBody = document.getElementById('panel-card-body');
+
+    if (cardHeader) cardHeader.innerHTML = `<h2>💰 Ventas de Hoy — ${new Date().toLocaleDateString('es-VE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h2>`;
+
+    try {
+        const res = await fetch(`${API_URL}/api/ventas/hoy`, { credentials: 'include' });
+        const data = await res.json();
+
+        if (!data.success) {
+            if (cardBody) cardBody.innerHTML = `<p class="placeholder-text" style="color:red;">Error: ${data.message}</p>`;
+            return;
+        }
+
+        const r = data.resumen;
+        const totalUSD = parseFloat(r.total_usd || 0);
+        const totalVES = parseFloat(r.total_ves || 0);
+        const totalFacturas = parseInt(r.total_facturas || 0);
+        const totalIVA = parseFloat(r.total_iva_usd || 0);
+        const totalIGTF = parseFloat(r.total_igtf_usd || 0);
+
+        // Actualizar métrica del dashboard también
+        const metricCard = document.querySelector('#card-ventas-hoy .metric-value');
+        if (metricCard) metricCard.textContent = `$${totalUSD.toFixed(2)}`;
+
+        if (cardBody) {
+            let metodosHtml = '';
+            if (data.por_metodo && data.por_metodo.length > 0) {
+                metodosHtml = `
+                    <h4 style="margin:16px 0 10px 0; font-size:14px; color:#374151;">📊 Desglose por Método de Pago</h4>
+                    <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+                        ${data.por_metodo.map(m => `
+                            <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 16px; font-size:13px;">
+                                <strong>${m.metodo_pago_principal || 'Sin especificar'}</strong><br>
+                                <span style="color:#166534;">${m.cantidad} factura(s) — $${parseFloat(m.subtotal_usd || 0).toFixed(2)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            cardBody.innerHTML = `
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:14px; margin-bottom:20px;">
+                    <div style="background:#f0fdf4; border:2px solid #16a34a; border-radius:10px; padding:16px; text-align:center;">
+                        <div style="font-size:28px; font-weight:700; color:#15803d;">$${totalUSD.toFixed(2)}</div>
+                        <div style="font-size:12px; color:#6b7280; margin-top:4px;">Total USD (Recaudado)</div>
+                    </div>
+                    <div style="background:#eff6ff; border:2px solid #3b82f6; border-radius:10px; padding:16px; text-align:center;">
+                        <div style="font-size:22px; font-weight:700; color:#1d4ed8;">Bs. ${totalVES.toLocaleString('es-VE', {minimumFractionDigits:2})}</div>
+                        <div style="font-size:12px; color:#6b7280; margin-top:4px;">Total Bolívares</div>
+                    </div>
+                    <div style="background:#fff7ed; border:2px solid #f97316; border-radius:10px; padding:16px; text-align:center;">
+                        <div style="font-size:28px; font-weight:700; color:#c2410c;">${totalFacturas}</div>
+                        <div style="font-size:12px; color:#6b7280; margin-top:4px;">Facturas Emitidas</div>
+                    </div>
+                    <div style="background:#fdf4ff; border:2px solid #a855f7; border-radius:10px; padding:16px; text-align:center;">
+                        <div style="font-size:22px; font-weight:700; color:#7e22ce;">$${totalIVA.toFixed(2)}</div>
+                        <div style="font-size:12px; color:#6b7280; margin-top:4px;">IVA Débito Fiscal</div>
+                    </div>
+                </div>
+
+                ${totalFacturas === 0 ? `
+                    <div style="text-align:center; padding:40px 20px; background:#f9fafb; border-radius:10px;">
+                        <p style="font-size:48px; margin-bottom:8px;">📭</p>
+                        <p style="color:#6b7280; font-size:14px;">No se han registrado ventas pagadas el día de hoy.</p>
+                    </div>
+                ` : metodosHtml}
+
+                ${totalIGTF > 0 ? `
+                    <div style="background:#fef9c3; border:1px solid #fbbf24; border-radius:8px; padding:10px 14px; margin-top:12px; font-size:13px; color:#78350f;">
+                        <strong>IGTF Retenido (3%):</strong> $${totalIGTF.toFixed(2)} USD
+                    </div>
+                ` : ''}
+
+                <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+                    <button type="button" class="btn-primary" onclick="document.querySelector('a[href=\\'#ventas\\']').click()">
+                        Ver Historial Completo →
+                    </button>
+                    <button type="button" class="btn-primary" style="background:#6b7280;" onclick="actualizarMetricaVentasHoy().then(() => cargarVentasHoy())">
+                        🔄 Actualizar
+                    </button>
+                </div>
+            `;
+        }
+
+    } catch (err) {
+        console.error(err);
+        if (cardBody) cardBody.innerHTML = `<p class="placeholder-text" style="color:red;">Error al consultar ventas del día.</p>`;
     }
 }
 
@@ -1348,4 +1580,150 @@ function guardarTasaBCVManual() {
         return;
     }
     alert('✅ Tasa BCV actualizada a Bs. ' + valor.toFixed(4));
+}
+
+// ==========================================================
+// FUNCIÓN DESPACHADORA: Al hacer clic en una tarjeta de métrica
+// ==========================================================
+function mostrarContenidoMetrica(tipo) {
+    // Resaltar la tarjeta seleccionada
+    document.querySelectorAll('.metric-card').forEach(c => c.classList.remove('metric-card-active'));
+    const cardSeleccionada = document.getElementById(`card-${tipo}`);
+    if (cardSeleccionada) cardSeleccionada.classList.add('metric-card-active');
+
+    switch (tipo) {
+        case 'ventas-hoy':
+            mostrarMensajeVentasEnDesarrollo();
+            break;
+        case 'total-productos':
+            cargarProductos();
+            break;
+        case 'stock-bajo':
+            cargarStockBajo();
+            break;
+        case 'administradores':
+            cargarGestionUsuarios();
+            break;
+    }
+}
+
+// ==========================================================
+// VISTA: Productos con Stock Bajo o Agotado
+// ==========================================================
+async function cargarStockBajo() {
+    const cardHeader = document.getElementById('panel-card-header');
+    const cardBody = document.getElementById('panel-card-body');
+
+    if (cardHeader) {
+        cardHeader.innerHTML = `<h2>⚠️ Productos con Stock Bajo o Agotado</h2>`;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/api/productos`, { credentials: 'include' });
+        const result = await response.json();
+
+        if (!result.success || !Array.isArray(result.data)) {
+            if (cardBody) cardBody.innerHTML = `<p class="placeholder-text" style="color:red;">Error al cargar productos.</p>`;
+            return;
+        }
+
+        const umbral = 5; // stock_minimo por defecto
+        const productosBajos = result.data.filter(p => p.stock <= (p.stock_minimo || umbral));
+
+        if (cardBody) {
+            if (productosBajos.length === 0) {
+                cardBody.innerHTML = `
+                    <div style="text-align:center; padding: 40px;">
+                        <p style="font-size: 48px;">✅</p>
+                        <p class="placeholder-text">¡Excelente! No hay productos con stock bajo en este momento.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:12px 16px;margin-bottom:16px;font-size:13px;">
+                    <strong>⚠️ Atención:</strong> Se encontraron <strong>${productosBajos.length}</strong> producto(s) con stock igual o por debajo del mínimo (≤ ${umbral} unidades).
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Código</th>
+                                <th>Nombre</th>
+                                <th>Categoría</th>
+                                <th>Precio (USD)</th>
+                                <th>Stock Actual</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            productosBajos.forEach((prod, index) => {
+                const badgeStock = prod.stock === 0
+                    ? `<span class="badge badge-danger">Agotado (0)</span>`
+                    : `<span class="badge badge-warning">Stock Bajo (${prod.stock})</span>`;
+
+                html += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><code>${prod.codigo_barras}</code></td>
+                        <td><strong>${prod.nombre}</strong></td>
+                        <td>${prod.categoria_nombre || 'Sin Categoría'}</td>
+                        <td><strong>$${parseFloat(prod.precio_usd).toFixed(2)}</strong></td>
+                        <td>${badgeStock}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button type="button" class="btn-action btn-edit" onclick="prepararEdicion(${prod.id_producto})">
+                                    ✏️ Editar Stock
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            cardBody.innerHTML = html;
+        }
+
+    } catch (err) {
+        console.error('Error al cargar stock bajo:', err);
+        if (cardBody) cardBody.innerHTML = `<p class="placeholder-text" style="color:red;">Error al conectar con la base de datos.</p>`;
+    }
+}
+
+// ==========================================================
+// VISTA: Mensaje módulo Ventas Hoy (en desarrollo)
+// ==========================================================
+function mostrarMensajeVentasEnDesarrollo() {
+    const cardHeader = document.getElementById('panel-card-header');
+    const cardBody = document.getElementById('panel-card-body');
+
+    if (cardHeader) {
+        cardHeader.innerHTML = `<h2>💰 Ventas Hoy</h2>`;
+    }
+
+    if (cardBody) {
+        cardBody.innerHTML = `
+            <div style="text-align:center; padding: 50px 20px;">
+                <p style="font-size: 56px; margin-bottom: 10px;">🚧</p>
+                <h3 style="color: #856404; margin-bottom: 8px;">Módulo en Desarrollo</h3>
+                <p style="color: #666; font-size: 14px; max-width: 400px; margin: 0 auto;">
+                    El módulo de <strong>Ventas Hoy</strong> está en construcción. 
+                    Por favor, finaliza primero la gestión del área de administradores antes de activar esta sección.
+                </p>
+                <button type="button" class="btn-primary" style="margin-top: 20px;" onclick="document.querySelector('a[href=\'#ventas\']').click()">
+                    Ver Historial de Ventas →
+                </button>
+            </div>
+        `;
+    }
 }

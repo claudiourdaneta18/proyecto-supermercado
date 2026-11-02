@@ -86,6 +86,33 @@ router.get('/ventas', verifyToken, async (req, res) => {
     }
 });
 
+// ==========================================
+// RUTA: RESUMEN DE VENTAS DEL DÍA (GET /api/ventas/hoy)
+// ==========================================
+router.get('/ventas/hoy', verifyToken, async (req, res) => {
+    try {
+        const [rows] = await db.query(
+            `SELECT 
+                COUNT(*) AS total_facturas,
+                COALESCE(SUM(v.monto_total_usd), 0) AS total_usd,
+                COALESCE(SUM(v.monto_total_ves), 0) AS total_ves,
+                COALESCE(SUM(v.monto_iva_usd), 0) AS total_iva_usd,
+                COALESCE(SUM(v.monto_igtf_usd), 0) AS total_igtf_usd
+             FROM ventas v
+             WHERE DATE(v.creado_en) = CURDATE() AND v.estado_pago = 'pagado'`
+        );
+        const [metodoRows] = await db.query(
+            `SELECT metodo_pago_principal, COUNT(*) AS cantidad, COALESCE(SUM(monto_total_usd), 0) AS subtotal_usd
+             FROM ventas
+             WHERE DATE(creado_en) = CURDATE() AND estado_pago = 'pagado'
+             GROUP BY metodo_pago_principal`
+        );
+        res.json({ success: true, resumen: rows[0], por_metodo: metodoRows });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error al consultar ventas del día: ' + err.message });
+    }
+});
+
 router.put('/ventas/:id/estado', verifyToken, async (req, res) => {
     const { id } = req.params;
     const { estado_pago, estado_entrega } = req.body;

@@ -2,9 +2,17 @@
 node_modules/
 vendor/
 
-# Archivos de entorno y variables sensibles (claves, bases de datos)
+# Archivos de entorno y variables sensibles (claves)
 .env
 .env.local
+
+# --- BASES DE DATOS Y RESPALDOS (Agregado) ---
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+*.bak
+dump.sql
 
 # Archivos de configuración de editores o del sistema
 .vscode/

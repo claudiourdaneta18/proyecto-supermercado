@@ -19,10 +19,10 @@
 
             <!-- Información del Usuario Activo -->
             <div class="user-badge">
-                <div class="user-avatar">SA</div>
+                <div class="user-avatar" id="display-user-avatar"></div>
                 <div class="user-info">
-                    <span class="user-name" id="ode -name">Cargando...</span>
-                    <span class="user-role" id="display-user-role">Super Admin</span>
+                    <span class="user-name" id="display-user-name">Cargando...</span>
+                    <span class="user-role" id="display-user-role">Cargando...</span>
                 </div>
             </div>
 
@@ -117,7 +117,7 @@
 
                 <!-- TARJETAS DE ESTADÍSTICAS RÁPIDAS (RESUMEN) -->
                 <section class="metrics-grid">
-                    <div class="metric-card">
+                    <div class="metric-card" id="card-ventas-hoy" onclick="mostrarContenidoMetrica('ventas-hoy')" style="cursor:pointer;" title="Ver detalle de Ventas Hoy">
                         <div class="metric-icon">💰</div>
                         <div class="metric-data">
                             <h3>Ventas Hoy</h3>
@@ -125,7 +125,7 @@
                         </div>
                     </div>
 
-                    <div class="metric-card">
+                    <div class="metric-card" id="card-total-productos" onclick="mostrarContenidoMetrica('total-productos')" style="cursor:pointer;" title="Ver inventario de productos">
                         <div class="metric-icon">📦</div>
                         <div class="metric-data">
                             <h3>Total Productos</h3>
@@ -133,7 +133,7 @@
                         </div>
                     </div>
 
-                    <div class="metric-card">
+                    <div class="metric-card" id="card-stock-bajo" onclick="mostrarContenidoMetrica('stock-bajo')" style="cursor:pointer;" title="Ver productos con stock bajo">
                         <div class="metric-icon">⚠️</div>
                         <div class="metric-data">
                             <h3>Stock Bajo</h3>
@@ -142,7 +142,7 @@
                     </div>
 
                     <!-- METRICA EXCLUSIVA DE SUPERADMIN -->
-                    <div class="metric-card only-superadmin">
+                    <div class="metric-card only-superadmin" id="card-administradores" onclick="mostrarContenidoMetrica('administradores')" style="cursor:pointer;" title="Ver gestión de administradores">
                         <div class="metric-icon">👥</div>
                         <div class="metric-data">
                             <h3>Administradores</h3>

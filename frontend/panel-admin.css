@@ -685,4 +685,23 @@ body {
 
 .security-box p {
     margin-top: 4px;
-}
+}
+
+/* ==========================================================================
+   TARJETAS DE MÉTRICAS — Estado activo al hacer clic
+   ========================================================================== */
+.metric-card {
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(22, 163, 74, 0.15);
+}
+
+.metric-card-active {
+    border: 2px solid var(--primary-color) !important;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.18) !important;
+    transform: translateY(-2px) !important;
+}
+

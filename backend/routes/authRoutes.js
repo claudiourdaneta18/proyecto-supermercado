@@ -173,7 +173,7 @@ router.post('/login', async (req, res) => {
 
         // Generación de Token JWT
         const token = jwt.sign(
-            { id: user.id_usuario, nombre: user.nombre, rol: user.rol, email: user.email },
+            { id: user.id_usuario, nombre: user.nombre, apellido: user.apellido, rol: user.rol, email: user.email },
             process.env.JWT_SECRET || 'super_secreto_jireth_2026',
             { expiresIn: '8h' }
         );

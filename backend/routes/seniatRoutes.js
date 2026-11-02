@@ -338,4 +338,92 @@ router.get('/seniat/libro-ventas', verifyToken, async (req, res) => {
     }
 });
 
+
+// ==========================================
+// 6. OBTENER CONFIGURACIÓN GENERAL DEL SISTEMA (GET /api/config)
+// ==========================================
+router.get('/config', verifyToken, async (req, res) => {
+    try {
+        // Obtener tasa BCV más reciente guardada en tasas_cambio
+        const [tasaRows] = await db.query(
+            `SELECT tasa_bcv, fecha FROM tasas_cambio ORDER BY fecha DESC LIMIT 1`
+        );
+        // Obtener stock_minimo global de configuracion_emisor (columna extra si existe, o usamos un valor por defecto)
+        const [emisorRows] = await db.query('SELECT stock_minimo_alerta FROM configuracion_emisor WHERE id_emisor = 1');
+
+        res.json({
+            success: true,
+            tasa_bcv: tasaRows.length > 0 ? parseFloat(tasaRows[0].tasa_bcv) : null,
+            tasa_fecha: tasaRows.length > 0 ? tasaRows[0].fecha : null,
+            stock_minimo: emisorRows.length > 0 && emisorRows[0].stock_minimo_alerta != null
+                ? emisorRows[0].stock_minimo_alerta
+                : 5
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error al leer configuración: ' + err.message });
+    }
+});
+
+// ==========================================
+// 7. GUARDAR TASA BCV (PUT /api/config/tasa-bcv)
+// ==========================================
+router.put('/config/tasa-bcv', verifyToken, async (req, res) => {
+    const { tasa_bcv } = req.body;
+    const MASTER_SECRET = process.env.MASTER_SECRET || 'JirethMaster2026*';
+    const isAuthorized = isSuperAdmin(req) || req.body.auth_code === MASTER_SECRET;
+
+    if (!isAuthorized) {
+        return res.status(403).json({ success: false, message: '⚠️ Se requiere autorización del Super Admin.' });
+    }
+    if (!tasa_bcv || isNaN(parseFloat(tasa_bcv)) || parseFloat(tasa_bcv) <= 0) {
+        return res.status(400).json({ success: false, message: 'La tasa BCV debe ser un número positivo.' });
+    }
+
+    try {
+        const hoy = new Date().toISOString().split('T')[0];
+        const tasaVal = parseFloat(tasa_bcv);
+        const idAdmin = req.user ? req.user.id : null;
+
+        // INSERT o UPDATE si ya existe una tasa para hoy
+        await db.query(
+            `INSERT INTO tasas_cambio (fecha, tasa_bcv, registrado_por)
+             VALUES (?, ?, ?)
+             ON DUPLICATE KEY UPDATE tasa_bcv = VALUES(tasa_bcv), registrado_por = VALUES(registrado_por)`,
+            [hoy, tasaVal, idAdmin]
+        );
+
+        res.json({ success: true, message: `✅ Tasa BCV actualizada a Bs. ${tasaVal.toFixed(4)} para el día ${hoy}.`, tasa_bcv: tasaVal });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error al guardar tasa BCV: ' + err.message });
+    }
+});
+
+// ==========================================
+// 8. GUARDAR UMBRAL DE STOCK MÍNIMO (PUT /api/config/stock-minimo)
+// ==========================================
+router.put('/config/stock-minimo', verifyToken, async (req, res) => {
+    const { stock_minimo } = req.body;
+    const MASTER_SECRET = process.env.MASTER_SECRET || 'JirethMaster2026*';
+    const isAuthorized = isSuperAdmin(req) || req.body.auth_code === MASTER_SECRET;
+
+    if (!isAuthorized) {
+        return res.status(403).json({ success: false, message: '⚠️ Se requiere autorización del Super Admin.' });
+    }
+    const valor = parseInt(stock_minimo);
+    if (isNaN(valor) || valor < 1) {
+        return res.status(400).json({ success: false, message: 'El umbral de stock mínimo debe ser un número entero positivo.' });
+    }
+
+    try {
+        // Guardar en columna stock_minimo_alerta de configuracion_emisor
+        await db.query(
+            'UPDATE configuracion_emisor SET stock_minimo_alerta = ? WHERE id_emisor = 1',
+            [valor]
+        );
+        res.json({ success: true, message: `✅ Umbral de stock mínimo actualizado a ${valor} unidades.`, stock_minimo: valor });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error al guardar umbral de stock: ' + err.message });
+    }
+});
+
 module.exports = router;
